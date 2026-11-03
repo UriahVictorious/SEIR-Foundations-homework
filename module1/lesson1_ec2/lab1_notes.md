@@ -4,63 +4,72 @@
 
 Output line from this run: `INFO:     Started server process [36769]`
 
-This was my first run on the first instance. I looked up account 100001, posted payment TXN0001 for 125.50, checked `data/payments.dat`, activated the venv and started uvicorn. It ran smoothly with no errors.
+- Ran straight from the runbook.
+- No errors.
+- Starting to understand how SWIFT works.
 
-What I understood this time: (add your own line)
 
 ## Run 2 — i-027eb63af7da53b93 (2026-11-02)
 
 Output line from this run: `INFO:     Started server process [37756]`
 
-The steps ran smoothly with no errors. This time I also looked up a missing account (999999) and checked `echo $?`, which returned 4.
+- Ran from the runbook again.
+- No errors.
+- No new understanding.
 
-What I understood this time: (add your own line)
 
 ## Run 3 — i-0da0f04315a20e6bc (2026-11-02)
 
 Output line from this run: `INFO:     Started server process [36248]`
 
-The run was smooth with no errors. I double-checked my directory: `ls` in my home folder showed only SEIR-Foundations, and `ls` in /opt/balerica-bank showed agents, app, cobol, data, logs, swift and venv.
+- Ran from the runbook, minus the test entries.
+- No errors.
+- Found out that I could do the run without the extra entries.
 
-What I understood this time: (add your own line)
 
 ## Run 4 — i-099df47e8170f56c0 (2026-11-02)
 
 Output line from this run: `INFO:     Started server process [36294]`
 
-No errors on this run. I opened a second window to test the running server, and the log shows `127.0.0.1:44418 - "GET /status HTTP/1.1" 200 OK`. I also tested the missing account 999999 again and got return code 4.
+- I checked my directory in between entries and checked information in the second window.
+- Still no errors.
+- Found out that I could still run separate processes, and the second window shows up in the bank window's data.
 
-What I understood this time: (add your own line)
 
 ## Run 5 — i-04ad4dee6df873a89 (2026-11-03)
 
 Output line from this run: `INFO:     Started server process [35831]`
 
-Same sequence as before: lookup of account 100001, a posted payment (TXN0001, 125.50), the ID line, then uvicorn. It ran smoothly with no errors, and the server started on the first try.
+- Went back to the runbook.
+- Repeated a download by mistake.
+- Found out that if you download information into the ec2, it won't download it again.
 
-What I understood this time: (add your own line)
 
 ## Run 6 — i-0f3e401fca2cc39a9 (2026-11-03)
 
 Output line from this run: `INFO:     Started server process [35714]`
 
-No errors on this run. I tested the missing account 999999 again and got return code 4 before posting the payment and starting uvicorn.
-
-What I understood this time: (add your own line)
+- Did all the steps, including the test entries again.
+- No mistakes this time.
+- I understand better how the bank and the customer interface interact.
 
 ## Run 7 — i-0b861c9ff48a1f067 (2026-11-03)
 
 Output line from this run: `INFO:     Started server process [35766]`
 
-No errors on this run, and the sequence was the same as run 6: missing account 999999 returned 4, then the payment and uvicorn. I used this instance for the COBOL practice and the git clone below.
+- I did all my other steps, using this instance.
+- I put all my mistakes below.
+- I learned not to do your homework late at night! Lol!
 
-What I understood this time: (add your own line)
+(Write at least 3 sentences.)
 
 ## Mistakes I made
 
 1. In my first return code 8 attempt I typed `TXN-XX-0001`, using the placeholder `XX` instead of my own initials, so I had to redo it with `TXN-VW-...`.
 2. When I first checked my GitHub branch I put the README in the wrong place (top level, then `Module-1/lesson1_ec2`) instead of `module1/lesson1_ec2`, so the clone's `ls` did not show `lesson1_ec2`.
 3. I ran `ls` on the lowercase folder name `seir-foundations-homework/module1`, but the repo cloned as `SEIR-Foundations-homework`, and Linux paths are case-sensitive.
+
+(Edit or replace these so they are in your own words and are things that really happened to you.)
 
 ## Commands I now know by heart
 
@@ -146,7 +155,7 @@ FILE-STATUS=35
 12
 ```
 
-Meaning: the program looks for `data/accounts.dat` relative to the folder it is run from. From my home folder that file does not exist, so the program could not open it (`FILE-STATUS=35`) and exited with 12. The bank's data was fine; the program was run from the wrong place.
+Meaning: (write in your own words why running from the wrong folder breaks it. Hint: the program looks for `data/accounts.dat` relative to the folder you run it from.)
 
 **A successful payment (for comparison)**
 
@@ -172,11 +181,11 @@ Column layout: 1-6 account id, 7-36 name, 37-44 status, 45-56 balance, 57-59 cur
 | 100002 Robert Smith | `000000275000` | 2750.00 |
 | 100003 Maria Garcia | `000000810000` | 8100.00 |
 
-Why there is no decimal point in the file: the last two digits are the cents, and the decimal point is implied by the field's definition (the layout), not stored as a character. So `000000500000` is 500000 cents, which is 5000.00. Keeping the point out keeps every field a fixed width and the amount a whole number.
+Why there is no decimal point in the file: The ledger can only use numerals, and the last 2 numbers will be the cents
 
 ### payments.dat
 
-My journal lines:
+My journal lines (re-copy these from your terminal so the spacing is exact):
 
 ```
 TXN-VW-0001         100001000000000500USDPOSTED  TEST-ZERO
@@ -186,4 +195,4 @@ TXN-VW-0003         100001000099999900USDREJECTEDTEST-BIG
 
 After my payments I looked up account 100001 again: `BALANCE=5000.00`. It did not change, even though `TXN0001` (125.50) and `TXN-VW-0001` (5.00) were `POSTED`.
 
-My best guess why: `payments.dat` is a journal, a record of each payment and whether it was posted or rejected. The balance in `accounts.dat` is a separate record, and I think it gets updated by a later step instead of by `payment_post` itself, the way real banks post transactions first and apply them to balances afterward.
+Best guess: `payments.dat` is a journal, a record of each payment and whether it was posted or rejected. The balance in `accounts.dat` is a separate record, and I think it gets updated later instead of by a `payment_post` itself, the way real banks post transactions first and apply them to balances afterward.
