@@ -1,0 +1,26 @@
+AI used = Claude (Anthropic)
+Conversation share link = see ai_review_transcript_VinceWoods.txt
+
+Q1: Why do they use FastAPI as a legacy modernization layer?
+AI's answer, in my own words: The COBOL core can't speak HTTP or JSON. It takes command-line arguments and prints KEY=VALUE lines. FastAPI sits in front of it, takes web requests, calls the COBOL programs through cobol_bridge.py, and sends back JSON. That way modern things like a browser, the traffic generator and the AI helper can use the bank, while the COBOL logic stays untouched, and I get the /docs page for free.
+How I checked it: I re-read the architecture diagram in the runbook.
+
+Q2: Are there other message types besides MT103 messages?
+AI's answer, in my own words: Yes, SWIFT has many message types. MT102 is a multiple customer transfer, the MT200 series (like MT202) are bank-to-bank transfers, MT101 is a transfer request, and MT199/MT299 are free-format messages. Under ISO 20022 they map to newer messages, for example MT103 to pacs.008 and MT202 to pacs.009. The lab only generates MT103.
+How I checked it: I looked up SWIFT message types.
+
+Q3: Does your Security Group port for the bank HAVE to be 8000, or can it be any number?
+AI's answer, in my own words: It can be any valid port as long as three things match: the --port in the uvicorn command, the inbound rule in the Security Group, and the port in the URL. 8000 is just the runbook's choice. Ports below 1024 need extra privileges on Linux, 22 is taken by SSH, and the source should stay "My IP".
+How I checked it: I did not run a separate check on this one. It was a sample question I asked to see what Claude would say.
+
+Q4: Can basic syntax errors in your test entries make your code not work properly?
+AI's answer, in my own words: Yes, because the computer takes every character literally. Examples from my own work: my ls on the lowercase folder name failed with "No such file or directory", running account_lookup from my home folder gave return code 12 (FILE-STATUS=35), and leaving a placeholder like XX in a TXN ID gave a result I didn't mean. The runbook also lists malformed arguments under return code 12. A syntax error in the COBOL source itself would stop the compile step.
+How I checked it: Claude pointed out one of my own errors (the failed lowercase ls in my git clone screenshot), which answers my question.
+
+Q5: Are there other types of COBOL besides GnuCOBOL?
+AI's answer, in my own words: Yes. COBOL is a language that several vendors implement. GnuCOBOL is the free, open-source compiler used in this lab. Others include IBM Enterprise COBOL, Micro Focus (Enterprise Developer), Rocket Visual COBOL and Veryant isCOBOL. The dialects differ in the details.
+How I checked it: I looked up COBOL types and verified what Claude said.
+
+Where the AI was wrong, vague, or out of date:
+1. Claude told me to expect Alice's balance to drop below 5000.00 after my payments, because an "insufficient funds" rejection means payments are subtracted. I found out it was wrong by looking up account 100001 again after my payments: BALANCE=5000.00 had not changed, even though TXN0001 (125.50) and TXN-VW-0001 (5.00) were POSTED.
+2. When I asked why the balance did not change, Claude said it could not be sure and gave a best guess: payments.dat is a journal and the balance is updated by a separate step. The runbook's architecture diagram supports part of this (SQLite is the system of record, and accounts.dat is exported from it), but it does not say outright what payment_post does to the balance, so I treat it as a best guess.
