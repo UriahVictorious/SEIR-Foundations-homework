@@ -1,4 +1,4 @@
-Spotter = Ernie Morris   (the person who spots YOU)
+Spotter = Ernie Morris   
 5 things my spotter learned while working on the lab / homework:
 1. Starting the Ec2 instance is easier when you have the configuration stored in a template. You can actually start an instance and connect to it via SSH in under 5 minutes.
 2. API - I learned that APIs are an easy way for applications to speak with each other. I learned from AI using the restaurant analogy where you're the client, the kitchen is the server and the API is the server. You don't need to know how the kitchen cooks the meal, you just tell the waiter what you want using the menu and the waiter delivers your food to the plate.
@@ -6,7 +6,7 @@ Spotter = Ernie Morris   (the person who spots YOU)
 4. COBOL - I learned that COBOL is an old system and that it is so deeply embedded into mainframes that it represents a major core of global commerce. It is responsible for a large portion of banking and ATM operations.
 5. Databases - I learneed that PostgreSQL is one of the de facto databases in use today because of its reliability and data integrity. It is used by companies ranging from startups to large enterprises.
 
-I am the spotter for = Ernie Morris   (the person YOU spot)
+I am the spotter for = Ernie Morris   
 5 things I learned that I shared with them:
 1. Running the steps seven times instilled the process to memory much more efficiently.
 2. My father did COBOL in college, so it's OLD!
