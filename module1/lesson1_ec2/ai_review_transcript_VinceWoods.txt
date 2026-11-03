@@ -1,0 +1,71 @@
+AI REVIEW TRANSCRIPT (excerpts), Claude, November 3, 2026
+
+These are the relevant parts of my conversation with Claude while working on the Lesson 1 homework, copied as they were written. The full conversation is much longer and also covers the lab screenshots, git, and the study topics.
+
+========================================================
+PART A: THE BALANCE QUESTION (used for "where the AI was wrong")
+========================================================
+
+[Claude, after I triggered return code 8 with an oversized payment]
+
+Insufficient funds means a payment is subtracted from the balance. Keep that in mind for the write-up: after your TXN-VW-0001 payment of 5.00, I'd expect Alice's balance to be below 5000.00. You'll check that after rc 12.
+
+[Later, after I looked up account 100001 again and it still showed BALANCE=5000.00]
+
+Claude: Alice's balance is still 5000.00, even though two payments were POSTED (TXN0001 for 125.50 and TXN-VW-0001 for 5.00). The balance didn't change.
+
+[Me]: Why didn't the balance change?
+
+Claude: I can't say for certain, because I haven't seen the COBOL source or the runbook's explanation. Here's what your output shows, and what I think is the most likely explanation.
+
+What the evidence shows
+- payment_post wrote POSTED lines to payments.dat, so it recorded the payments (TXN0001 for 125.50 and TXN-VW-0001 for 5.00).
+- accounts.dat still holds 000000500000 (5000.00) for Alice, so the program doesn't rewrite the balance in that file when it posts a payment.
+- It does read the balance, though, because TXN-VW-0003 for 999999.00 was rejected for INSUFFICIENT FUNDS.
+
+My best guess: payments.dat is a journal, a log of what was requested and what happened. The balance in accounts.dat is a separate record that something else applies later. Real banks work this way too: transactions are recorded first, then applied to balances in a later batch or settlement step, so the lab's COBOL core may only be doing the first half. The lab could also keep the live balance somewhere else, like the SQLite database.
+
+That's a guess, so check it before you write it down.
+
+[Me]: I trust your guess, because that IS how it works. I'll go with that reason.
+
+[Claude, after I pasted the runbook]
+
+I've read it. It answers some of what we were guessing. The unchanged balance: the architecture diagram labels SQLite (data/bank.db) as the system of record. Step 2 says the installer exports the ledger to accounts.dat for the COBOL core. So accounts.dat is an exported copy, and the COBOL core only writes the payment journal. That supports the guess in your notes. The runbook doesn't say outright that running payment_post by hand leaves the balance alone, so keep your wording as "my best guess."
+
+========================================================
+PART B: MY FIVE RUNBOOK QUESTIONS
+========================================================
+
+[Me]: Q1 - Why do they use FastAPI as a legacy modernization layer?
+
+Claude: The COBOL core can't talk HTTP or JSON. According to the runbook's architecture diagram, it takes command-line arguments and prints KEY=VALUE lines. FastAPI sits in front of it: it receives HTTP/JSON requests, calls the COBOL programs through cobol_bridge.py, and returns JSON. Modern clients like your browser, the traffic generator and the AI helper get a normal API, plus the free /docs page, while the proven COBOL logic stays untouched. Integrating modern, mobile and cloud systems with a mainframe is described as really difficult, which is the gap an API layer fills. That last link is my reasoning, not something the runbook says.
+Check: Re-read the architecture diagram, and note that /accounts/{id} is answered by COBOL (see the endpoints table).
+
+[Me]: Q2 - Are there other message types besides MT103 messages?
+
+Claude: Yes. SWIFT has many. MT102 is a multiple customer credit transfer, and MT200-series messages like MT202 are bank-to-bank transfers. MT101 maps to pain.001, MT202 COV maps to a pacs.009 variant, and free-format MT199/MT299 messages also exist. Under ISO 20022, MT103 maps to pacs.008 and MT202 to pacs.009. The lab only generates MT103, per runbook Step 6.
+Check: Run python3 swift/traffic_generator.py --count 3 --show-mt103 on an instance, or read Swift's own message list, which is more authoritative than my sources.
+
+[Me]: Q3 - Does your Security Group port for the bank HAVE to be 8000, or can it be any number?
+
+Claude: No. Any valid port works as long as three things match: the number after --port in the uvicorn command, the inbound rule in the Security Group, and the port in the URL you type. Eight thousand is just the runbook's choice. Linux only lets a normal user open ports below 1024, so 80 and 443 won't work without extra privileges, and 22 is taken by SSH. Keep the source as "My IP", as the runbook says, so the API isn't open to everyone.
+Check: In the runbook, compare the port in Step 4 with the one in Step 7's rule. Both say 8000, and they just have to match. The AWS Security Group documentation also confirms the port-range rules.
+
+[Me]: Q4 - Can basic syntax errors in your test entries make your code not work properly?
+
+Claude: Yes, because the computer takes every character literally. The runbook says error messages are instructions, not insults, and you already ran into this tonight:
+- Case matters: ls seir-foundations-homework/module1 failed with "No such file or directory" because the folder is SEIR-Foundations-homework.
+- Wrong folder: Running account_lookup from ~ gave return code 12, FILE-STATUS=35, which the runbook's troubleshooting table lists for exactly that mistake.
+- Placeholders: Leaving XX as the initials, or the YOUR-... branch name, produced results that didn't match what you meant.
+The runbook's return code table also lists "malformed args" under code 12, so a typo in a program's arguments is a documented failure. A syntax error inside the COBOL source itself is a different thing. It would stop the compile step, and the installer's [8/9] Compiling COBOL programs... line would show errors.
+Check: Point to your own failed ls in the clone screenshot, plus the runbook's troubleshooting table.
+
+[Me]: Q5 - Are there other types of COBOL besides GnuCOBOL?
+
+Claude: Yes. COBOL is a language that several vendors implement. GnuCOBOL is the free, open-source compiler this lab uses.
+- IBM's Enterprise COBOL has its own documentation and programming guide.
+- Micro Focus has its own COBOL products, such as Enterprise Developer. Rocket Software now sells Visual COBOL.
+- Veryant has isCOBOL.
+Dialects differ in the details, which matters when you move code between them. I didn't research standards versions, so skip those or look them up.
+Check: Open the IBM or Rocket product pages to confirm they exist as separate COBOL products.
